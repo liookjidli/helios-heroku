@@ -132,6 +132,13 @@ class TgUploader:
                             app.copy_message(chat_id=self.__user_id, from_chat_id=self.__sent_msg.chat.id, message_id=self.__sent_msg.id)
                         except Exception as err:
                                 LOGGER.error(f"Failed To Send Video in PM:\n{err}")
+                    if self.__user_id in DUMP_DICT:
+                        dump_lst = DUMP_DICT[self.__user_id]
+                        for dump_id in dump_lst:
+                            try:
+                                bot.copy_message(chat_id=dump_id, from_chat_id=self.__sent_msg.chat.id, message_id=self.__sent_msg.id)
+                            except Exception as err:
+                                LOGGER.error(f"Failed To Send Video/File in Dump Channel:\n{err}")
                 elif is_audio:
                     duration , artist, title = get_media_info(up_path)
                     self.__sent_msg = client.send_audio(chat_id=leechchat, audio=up_path,
@@ -147,6 +154,14 @@ class TgUploader:
                             app.copy_message(chat_id=self.__user_id, from_chat_id=self.__sent_msg.chat.id, message_id=self.__sent_msg.id)
                         except Exception as err:
                                 LOGGER.error(f"Failed To Send Audio in PM:\n{err}")
+    
+                    if self.__user_id in DUMP_DICT:
+                        dump_lst = DUMP_DICT[self.__user_id]
+                        for dump_id in dump_lst:
+                            try:
+                                bot.copy_message(chat_id=dump_id, from_chat_id=self.__sent_msg.chat.id, message_id=self.__sent_msg.id)
+                            except Exception as err:
+                                LOGGER.error(f"Failed To Send Video/File in Dump Channel:\n{err}")
                 elif file_.upper().endswith(IMAGE_SUFFIXES):
                     self.__sent_msg = self.__app.send_photo(chat_id=leechchat, photo=up_path,
                                                                   caption=cap_mono,
@@ -157,6 +172,14 @@ class TgUploader:
                             app.copy_message(chat_id=self.__user_id, from_chat_id=self.__sent_msg.chat.id, message_id=self.__sent_msg.id)
                         except Exception as err:
                                 LOGGER.error(f"Failed To Send Image in PM:\n{err}")
+
+                    if self.__user_id in DUMP_DICT:
+                        dump_lst = DUMP_DICT[self.__user_id]
+                        for dump_id in dump_lst:
+                            try:
+                                bot.copy_message(chat_id=dump_id, from_chat_id=self.__sent_msg.chat.id, message_id=self.__sent_msg.id)
+                            except Exception as err:
+                                LOGGER.error(f"Failed To Send Video/File in Dump Channel:\n{err}")
                 else:
                     notMedia = True
             if self.__as_doc or notMedia:
@@ -176,6 +199,14 @@ class TgUploader:
                         app.copy_message(chat_id=self.__user_id, from_chat_id=self.__sent_msg.chat.id, message_id=self.__sent_msg.id)
                     except Exception as err:
                         LOGGER.error(f"Failed To Send Document in PM:\n{err}")
+
+                if self.__user_id in DUMP_DICT:
+                    dump_lst = DUMP_DICT[self.__user_id]
+                    for dump_id in dump_lst:
+                        try:
+                            bot.copy_message(chat_id=dump_id, from_chat_id=self.__sent_msg.chat.id, message_id=self.__sent_msg.id)
+                        except Exception as err:
+                            LOGGER.error(f"Failed To Send Video/File in Dump Channel:\n{err}")
         except FloodWait as f:
             LOGGER.warning(str(f))
             sleep(f.value)
