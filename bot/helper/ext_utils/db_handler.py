@@ -1,7 +1,7 @@
 from os import path as ospath, makedirs
 from psycopg2 import connect, DatabaseError
 
-from bot import DB_URI, AUTHORIZED_CHATS, SUDO_USERS, AS_DOC_USERS, AS_MEDIA_USERS, rss_dict, LOGGER, botname, LEECH_LOG
+from bot import DB_URI, AUTHORIZED_CHATS, SUDO_USERS, AS_DOC_USERS, AS_MEDIA_USERS, rss_dict, LOGGER, botname, LEECH_LOG, DUMP_DICT
 
 class DbManger:
     def __init__(self):
@@ -33,6 +33,7 @@ class DbManger:
                  leechlog boolean DEFAULT FALSE
               )
               """
+        self.cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS dump varchar(255) DEFAULT NULL")
         self.cur.execute(sql)
         sql = """CREATE TABLE IF NOT EXISTS rss (
                  name text,
@@ -70,6 +71,8 @@ class DbManger:
                         f.write(row[5])
                 if row[6] and row[0] not in LEECH_LOG:
                     LEECH_LOG.add(row[0])
+                if row[7] is not None:
+                    DUMP_DICT[row[0]] = row[7]
             LOGGER.info("Users data has been imported from Database")
         # Rss Data
         self.cur.execute("SELECT * FROM rss")
@@ -107,6 +110,30 @@ class DbManger:
             self.conn.commit()
             self.disconnect()
             return 'Unauthorized successfully'
+
+    def add_dumps(self, user_id: int, dumps):
+        if self.err:
+            return "Error in DB connection, check log for details"
+        elif not self.user_check(user_id):
+            sql = """INSERT INTO users (dump, uid) VALUES (%s, %s)"""
+        else:
+            sql = """UPDATE users SET dump = %s WHERE uid = %s"""
+        self.cur.execute(sql, (dumps,user_id,))
+        self.conn.commit()
+        self.disconnect()
+        return 'DUMP IDs Added Successfully.'
+
+    def rm_dumps(self, user_id: int):
+        if self.err:
+            return "Error in DB connection, check log for details"
+        elif not self.user_check(user_id):
+            sql = """INSERT INTO users (dump, uid) VALUES (%s, %s)"""
+        else:
+            sql = """UPDATE users SET dump = %s WHERE uid = %s"""
+        self.cur.execute(sql, (None,user_id,))
+        self.conn.commit()
+        self.disconnect()
+        return 'DUMP IDs removed successfully!'
 
     def user_addsudo(self, user_id: int):
         if self.err:
@@ -270,4 +297,3 @@ class DbManger:
 
 if DB_URI is not None:
     DbManger().db_init()
-
