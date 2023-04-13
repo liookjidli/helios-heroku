@@ -33,8 +33,8 @@ class DbManger:
                  leechlog boolean DEFAULT FALSE
               )
               """
-        self.cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS dump varchar(255) DEFAULT NULL")
         self.cur.execute(sql)
+        self.cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS dump varchar(255) DEFAULT NULL")
         sql = """CREATE TABLE IF NOT EXISTS rss (
                  name text,
                  link text,
